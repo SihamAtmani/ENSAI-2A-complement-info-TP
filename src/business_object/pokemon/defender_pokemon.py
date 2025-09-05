@@ -11,5 +11,4 @@ class DefenderPokemon(AbstractPokemon):
         )
 
     def get_pokemon_attack_coef(self) -> float:
-        sc = self._stat_current 
-        return 1 + (sc.attack + sc.defense) / 200
+        return 1 + (self.attack_current + self.defense_current) / 200
