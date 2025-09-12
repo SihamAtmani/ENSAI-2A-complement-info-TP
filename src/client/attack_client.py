@@ -53,6 +53,12 @@ class AttackClient(metaclass=Singleton):
         return attack
 
 
+    def get_all_attacks():
+        url = f"{self.__HOST}{END_POINT}"
+        print("GET  " + url + "\n")
+        req = requests.get(url)
+
+
 # Execute Code When the File Runs as a Script
 if __name__ == "__main__":
     # To load environment variables contained in the .env file
