@@ -39,7 +39,7 @@ class AttackClient(metaclass=Singleton):
 
             print("Réponse JSON obtenue :\n" + json.dumps(raw_attack, indent=2) + "\n")
         
-        attack_type = raw_attack.get("type") 
+        attack_type = raw_attack.get("attack_type") 
         attack = AttackFactory().instantiate_attack(
             type=attack_type,
             id=int(raw_attack.get("id", id)),          
