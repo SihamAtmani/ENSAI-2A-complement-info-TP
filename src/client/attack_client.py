@@ -53,10 +53,30 @@ class AttackClient(metaclass=Singleton):
         return attack
 
 
-    def get_all_attacks():
+    def get_all_attacks(self, limit, offset):
+        params = {}
+        if limit>0:
+            params["limit"] = limit
+        if offset>0:
+            params["offset"] = offset
+
         url = f"{self.__HOST}{END_POINT}"
         print("GET  " + url + "\n")
-        req = requests.get(url)
+        req = requests.get(url, params=params)
+        attacks = []
+        if req.status_code ==200:
+            raw_attacks = req.json()["results"]
+            attack_factory = AttackFactory()
+            for raw_attack in raw_attacks:
+                attack = attack_factory.instantiate_attack(
+                    type=raw_attack["attack_type"],
+                    id=raw_attack["id"],
+                    name=raw_attack["name"],
+                )
+                if attack:
+                    attacks.append(attack)
+        print(attacks)
+        return attacks
 
 
 # Execute Code When the File Runs as a Script
@@ -67,6 +87,4 @@ if __name__ == "__main__":
     dotenv.load_dotenv(override=True)
 
     attack_client = AttackClient()
-
-    attack_id = 4
-    attack_client.get_attack(attack_id)
+    attack_client.get_all_attacks(10, 100)
