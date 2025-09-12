@@ -38,10 +38,17 @@ class AttackClient(metaclass=Singleton):
             raw_attack = req.json()
 
             print("Réponse JSON obtenue :\n" + json.dumps(raw_attack, indent=2) + "\n")
-
-            # TODO
-            #   create an attack using the data contained in the json
-            #   see class AttackFactory to do this
+        
+        attack_type = raw_attack.get("type") 
+        attack = AttackFactory().instantiate_attack(
+            type=attack_type,
+            id=int(raw_attack.get("id", id)),          
+            power=raw_attack.get("power"),
+            name=raw_attack.get("name"),
+            description=raw_attack.get("description"),
+            accuracy=raw_attack.get("accuracy"),
+            element=raw_attack.get("element"),
+        )
 
         return attack
 
@@ -55,5 +62,5 @@ if __name__ == "__main__":
 
     attack_client = AttackClient()
 
-    attack_id = 1
+    attack_id = 4
     attack_client.get_attack(attack_id)
