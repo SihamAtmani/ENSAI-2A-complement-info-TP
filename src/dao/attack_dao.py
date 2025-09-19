@@ -33,16 +33,64 @@ class AttackDao(metaclass=Singleton):
         else:
             return None
 
-
-    def find_all_attacks(self, limit = None, offset = None):
-        request = ("SELECT *"
-        " FROM tp.attack"
-        " JOIN tp.attack_type USING(id_attack_type)"
+    
+    def find_all_attacks(self, limit= None, offset = None):
+        """
+        Retourne la liste de toutes les attaques (optionnellement avec limit et offset).
+        """
+        request = (
+            "SELECT * "
+            "FROM tp.attack AS a "
+            "JOIN tp.attack_type USING (id_attack_type) "
         )
-        if limit: 
-            request += f"LIMIT{limit}"
-        if 
 
+        # Bonus : ajout de LIMIT / OFFSET si précisé
+        if limit is not None:
+            request += " LIMIT %(limit)s"
+        if offset is not None:
+            request += " OFFSET %(offset)s"
+
+        with DBConnection().connection as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(request, {"limit": limit, "offset": offset})
+                res = cursor.fetchall()
+
+        attacks = []
+        attack_factory = AttackFactory()
+        for row in res:
+            attack = attack_factory.instantiate_attack(
+                type=row["attack_type_name"],
+                id=row["id_attack"],
+                power=row["power"]
+            )
+            attacks.append(attack)
+
+        return attacks
+
+    def update_attack(self, attack: AbstractAttack) -> bool:
+        """
+        Met à jour une attaque passée en paramètre.
+        Retourne True si la modification a réussi, sinon False.
+        """
+        requete = (
+            "UPDATE tp.attack "
+            "SET power = %(power)s, id_attack_type = %(id_attack_type)s "
+            "WHERE id_attack = %(id_attack)s"
+        )
+
+        with DBConnection().connection as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    requete,
+                    {
+                        "power": attack.power,
+                        "id_attack_type": attack.id_attack_type,
+                        "id_attack": attack.id
+                    }
+                )
+                updated_rows = cursor.rowcount
+
+        return updated_rows > 0
 
     def add_attack(self, attack: AbstractAttack) -> bool:
         """
@@ -100,8 +148,8 @@ if __name__ == "__main__":
         accuracy=90,
         element="Normal",
     )
-    """
     
+    """
 
     # succes = AttackDao().add_attack(mon_attaque)
     # print("Attack created in database : " + str(succes))
@@ -109,3 +157,7 @@ if __name__ == "__main__":
     id = 3
     recherche_par_id= AttackDao().find_attack_by_id(id)
     print(recherche_par_id)
+
+    print(AttackDao().find_all_attacks())
+
+    print(AttackDao().update_attack())
