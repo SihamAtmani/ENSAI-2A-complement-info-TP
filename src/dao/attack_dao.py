@@ -74,7 +74,7 @@ class AttackDao(metaclass=Singleton):
         """
         requete = (
             "UPDATE tp.attack "
-            "SET power = %(power)s, id_attack_type = %(id_attack_type)s "
+            "SET power = %(power)s "
             "WHERE id_attack = %(id_attack)s"
         )
 
@@ -84,7 +84,6 @@ class AttackDao(metaclass=Singleton):
                     requete,
                     {
                         "power": attack.power,
-                        "id_attack_type": attack.id_attack_type,
                         "id_attack": attack.id
                     }
                 )
