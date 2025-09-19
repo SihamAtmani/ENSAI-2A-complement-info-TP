@@ -7,6 +7,43 @@ from business_object.attack.attack_factory import AttackFactory
 
 
 class AttackDao(metaclass=Singleton):
+    def find_attack_by_id(self,id:int):
+        with DBConnection().connection as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT *                    "
+                    "FROM tp.attack AS a " 
+                    "JOIN tp.attack_type USING (id_attack_type)"        
+                    "WHERE a.id_attack = %(id)s ",
+                    {"id": id}
+                )
+                res = cursor.fetchone()
+
+        attack =  None
+        attack_factory = AttackFactory()
+
+        if res:
+            attack = attack_factory.instantiate_attack(
+                type=res["attack_type_name"], 
+                id = res["id_attack"],
+                power = res["power"]
+            )
+        
+            return attack
+        else:
+            return None
+
+
+    def find_all_attacks(self, limit = None, offset = None):
+        request = ("SELECT *"
+        " FROM tp.attack"
+        " JOIN tp.attack_type USING(id_attack_type)"
+        )
+        if limit: 
+            request += f"LIMIT{limit}"
+        if 
+
+
     def add_attack(self, attack: AbstractAttack) -> bool:
         """
         Add an attack to the database
@@ -44,6 +81,8 @@ class AttackDao(metaclass=Singleton):
         return created
 
 
+
+
 if __name__ == "__main__":
     # Pour charger les variables d'environnement contenues dans le fichier .env
     import dotenv
@@ -52,6 +91,8 @@ if __name__ == "__main__":
     dotenv.load_dotenv(override=True)
 
     # Création d'une attaque et ajout en BDD
+    
+    """
     mon_attaque = PhysicalFormulaAttack(
         power=50,
         name="chatouille",
@@ -59,6 +100,12 @@ if __name__ == "__main__":
         accuracy=90,
         element="Normal",
     )
+    """
+    
 
-    succes = AttackDao().add_attack(mon_attaque)
-    print("Attack created in database : " + str(succes))
+    # succes = AttackDao().add_attack(mon_attaque)
+    # print("Attack created in database : " + str(succes))
+
+    id = 3
+    recherche_par_id= AttackDao().find_attack_by_id(id)
+    print(recherche_par_id)
